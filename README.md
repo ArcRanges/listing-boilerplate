@@ -1,8 +1,5 @@
 # Listing Boilerplate
 
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
-
-
 Stack
 
   - Expo SDK 39 (Fast Deployment)
