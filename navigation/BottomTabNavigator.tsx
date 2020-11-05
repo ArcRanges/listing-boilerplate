@@ -8,6 +8,7 @@ import useColorScheme from '../hooks/useColorScheme';
 import TabOneScreen from '../screens/TabOneScreen';
 import ListingsScreen from '../screens/ListingsScreen';
 import ListingScreen from '../screens/ListingScreen';
+import ItemsScreen from '../screens/ItemsScreen';
 
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
@@ -20,20 +21,22 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="TabOne"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
+      tabBarOptions={{ activeTintColor: 'black' }}>
       <BottomTab.Screen
-        name="TabOne"
+        name="Home"
         component={TabOneNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="ios-home" color={'black'} />,
         }}
+        
       />
       <BottomTab.Screen
         name="TabTwo"
         component={TabTwoNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={'black'} />,
         }}
+       
       />
     </BottomTab.Navigator>
   );
@@ -49,6 +52,13 @@ function TabBarIcon(props: { name: string; color: string }) {
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 const TabOneStack = createStackNavigator<TabOneParamList>();
 
+const headerConfig = {
+  headerTintColor: 'black',
+  headerStyle: {
+    backgroundColor: 'white',
+    shadowColor: 'transparent'
+  },
+}
 function TabOneNavigator() {
   return (
     <TabOneStack.Navigator>
@@ -56,15 +66,35 @@ function TabOneNavigator() {
       <TabOneStack.Screen
         name="TabOneScreen"
         component={TabOneScreen}
-        options={{ headerTitle: 'Tab One Title' }}
+        options={{ 
+          ...headerConfig,
+          headerTitle: '', 
+          headerLeft: ()=> <Ionicons name="ios-menu" color="black" size={28} style={{marginLeft: 20}}/>
+        }}
       />
       <TabOneStack.Screen
         name="Listings"
         component={ListingsScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
       />
       <TabOneStack.Screen
         name="Listing"
         component={ListingScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
+      />
+       <TabOneStack.Screen
+        name="Items"
+        component={ItemsScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
       />
     </TabOneStack.Navigator>
   );

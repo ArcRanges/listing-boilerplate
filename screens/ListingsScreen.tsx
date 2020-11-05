@@ -9,13 +9,7 @@ import {
   Image
 } from 'react-native';
 
-import {
-  Card,
-  Title,
-  Paragraph,
-  Button,
-  IconButton
-} from 'react-native-paper';
+import Card from '../components/Card';
 
 const DATA = [
   {
@@ -142,24 +136,7 @@ export default function ListingsScreen({navigation}) {
       <View style={styles.listingContainer}>
         {data.map((data, index)=> {
           return (
-          
-              <View  key={index}  style={styles.listingBox}>
-                <Image source={{ uri: data.img_url}} 
-                  resizeMode={'cover'} 
-                  style={{ height: 150, borderTopLeftRadius: 10, borderTopRightRadius: 10}}
-                />
-                <View style={{ alignItems: 'flex-start', padding: 10}}>
-                  <Text style={{ color: 'rgba(0,0,0,1)', fontSize: 16, fontWeight: 'bold'}}>{data.title}</Text>
-                  <Text style={{ color: 'rgba(0,0,0,0.8)', fontSize: 12}}>{`${data.location.city}, ${data.location.province}`}</Text>
-                  {/* <Text style={{ color: 'rgba(0,0,0,0.5)', fontSize: 12, fontStyle: 'italic'}}>Posted 2 days ago in </Text> */}
-                  <TouchableOpacity  style={{ marginLeft: 'auto', marginRight: 5}}
-                   onPress={()=> navigation.navigate('Listing', {data})}
-                  >
-                    <Text style={{ color: '#147efb' }}>View</Text>
-                  </TouchableOpacity>
-                  
-                </View>
-              </View>
+            <Card key={index} data={data} navigation={navigation}/>
           )
         })}
       </View>
@@ -170,6 +147,7 @@ export default function ListingsScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white'
   },
   listingContainer: {
     flex: 1,

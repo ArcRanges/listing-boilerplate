@@ -3,7 +3,8 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
-  TouchableOpacity
+  TouchableOpacity,
+  ImageBackground
 } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
@@ -24,6 +25,7 @@ const DATA = [
     "max_car_id": 104,
     "name": "chrysler",
     "num_models": 3,
+    "icon_url": require('../assets/brands/acura.png'),
   },
   {
     "avg_horsepower": 190.625,
@@ -33,6 +35,7 @@ const DATA = [
     "max_car_id": 152,
     "name": "honda",
     "num_models": 8,
+    "icon_url": require('../assets/brands/honda.png'),
   },
   {
     "avg_horsepower": 333.94444444444446,
@@ -42,6 +45,7 @@ const DATA = [
     "max_car_id": 270,
     "name": "mercedes-benz",
     "num_models": 18,
+    "icon_url": require('../assets/brands/mercedes-benz.png'),
   },
   {
     "avg_horsepower": 299.8333333333333,
@@ -51,6 +55,7 @@ const DATA = [
     "max_car_id": 307,
     "name": "ram",
     "num_models": 6,
+    "icon_url": require('../assets/brands/acura.png'),
   },
   {
     "avg_horsepower": 281.2631578947368,
@@ -60,6 +65,7 @@ const DATA = [
     "max_car_id": 125,
     "name": "ford",
     "num_models": 19,
+    "icon_url": require('../assets/brands/ford.png'),
   },
   {
     "avg_horsepower": 292.3333333333333,
@@ -69,6 +75,7 @@ const DATA = [
     "max_car_id": 146,
     "name": "gmc",
     "num_models": 9,
+    "icon_url": require('../assets/brands/gmc.png'),
   },
   {
     "avg_horsepower": 340.59090909090907,
@@ -78,6 +85,7 @@ const DATA = [
     "max_car_id": 21,
     "name": "audi",
     "num_models": 22,
+    "icon_url": require('../assets/brands/audi.png'),
   },
   {
     "avg_horsepower": 192.14285714285714,
@@ -87,6 +95,7 @@ const DATA = [
     "max_car_id": 330,
     "name": "subaru",
     "num_models": 7,
+    "icon_url": require('../assets/brands/subaru.png'),
   },
   {
     "avg_horsepower": 518.1666666666666,
@@ -96,6 +105,7 @@ const DATA = [
     "max_car_id": 315,
     "name": "rolls-royce",
     "num_models": 6,
+    "icon_url": require('../assets/brands/rolls-royce.png'),
   },
   {
     "avg_horsepower": 475.25,
@@ -105,6 +115,7 @@ const DATA = [
     "max_car_id": 301,
     "name": "porsche",
     "num_models": 8,
+    "icon_url": require('../assets/brands/porsche.png'),
   },
   {
     "avg_horsepower": 379.2258064516129,
@@ -114,6 +125,7 @@ const DATA = [
     "max_car_id": 64,
     "name": "bmw",
     "num_models": 31,
+    "icon_url": require('../assets/brands/bmw.png'),
   },
   {
     "avg_horsepower": 285.2857142857143,
@@ -123,6 +135,7 @@ const DATA = [
     "max_car_id": 371,
     "name": "volvo",
     "num_models": 7,
+    "icon_url": require('../assets/brands/volvo.png'),
   },
   {
     "avg_horsepower": 324.6,
@@ -132,6 +145,7 @@ const DATA = [
     "max_car_id": 236,
     "name": "lincoln",
     "num_models": 5,
+    "icon_url": require('../assets/brands/lincoln.png'),
   },
   {
     "avg_horsepower": 444,
@@ -141,6 +155,7 @@ const DATA = [
     "max_car_id": 245,
     "name": "maserati",
     "num_models": 4,
+    "icon_url": require('../assets/brands/maserati.png'),
   },
   {
     "avg_horsepower": 286.75,
@@ -150,6 +165,7 @@ const DATA = [
     "max_car_id": 3,
     "name": "acura",
     "num_models": 4,
+    "icon_url": require('../assets/brands/acura.png'),
   },
   {
     "avg_horsepower": 641,
@@ -159,6 +175,7 @@ const DATA = [
     "max_car_id": 254,
     "name": "mclaren",
     "num_models": 2,
+    "icon_url": require('../assets/brands/mclaren.png'),
   },
   {
     "avg_horsepower": 311.375,
@@ -168,6 +185,7 @@ const DATA = [
     "max_car_id": 177,
     "name": "infiniti",
     "num_models": 8,
+    "icon_url": require('../assets/brands/infiniti.png'),
   },
   {
     "avg_horsepower": 158.33333333333334,
@@ -177,6 +195,7 @@ const DATA = [
     "max_car_id": 115,
     "name": "fiat",
     "num_models": 3,
+    "icon_url": require('../assets/brands/fiat.png'),
   },
   {
     "avg_horsepower": 145.66666666666666,
@@ -186,6 +205,7 @@ const DATA = [
     "max_car_id": 319,
     "name": "scion",
     "num_models": 6,
+    "icon_url": require('../assets/brands/scion.png'),
   },
   {
     "avg_horsepower": 352.14285714285717,
@@ -195,6 +215,7 @@ const DATA = [
     "max_car_id": 112,
     "name": "dodge",
     "num_models": 7,
+    "icon_url": require('../assets/brands/dodge.png'),
   },
   {
     "avg_horsepower": 540.3333333333334,
@@ -204,6 +225,7 @@ const DATA = [
     "max_car_id": 67,
     "name": "bentley",
     "num_models": 3,
+    "icon_url": require('../assets/brands/bentley.png'),
   },
   {
     "avg_horsepower": 531,
@@ -213,6 +235,7 @@ const DATA = [
     "max_car_id": 11,
     "name": "aston-martin",
     "num_models": 5,
+    "icon_url": require('../assets/brands/aston-martin.png'),
   },
   {
     "avg_horsepower": 250.8421052631579,
@@ -222,6 +245,7 @@ const DATA = [
     "max_car_id": 100,
     "name": "chevrolet",
     "num_models": 19,
+    "icon_url": require('../assets/brands/chevrolet.png'),
   },
   {
     "avg_horsepower": 304,
@@ -240,6 +264,7 @@ const DATA = [
     "max_car_id": 274,
     "name": "mitsubishi",
     "num_models": 7,
+    "icon_url": require('../assets/brands/mitsubishi.png'),
   },
   {
     "avg_horsepower": 203.08333333333334,
@@ -249,6 +274,7 @@ const DATA = [
     "max_car_id": 363,
     "name": "volkswagen",
     "num_models": 12,
+    "icon_url": require('../assets/brands/volkswagen.png'),
   },
   {
     "avg_horsepower": 209.23809523809524,
@@ -258,6 +284,7 @@ const DATA = [
     "max_car_id": 339,
     "name": "toyota",
     "num_models": 21,
+    "icon_url": require('../assets/brands/toyota.png'),
   },
   {
     "avg_horsepower": 239.83333333333334,
@@ -267,6 +294,7 @@ const DATA = [
     "max_car_id": 187,
     "name": "jeep",
     "num_models": 6,
+    "icon_url": require('../assets/brands/jeep.png'),
   },
   {
     "avg_horsepower": 246.5,
@@ -276,6 +304,7 @@ const DATA = [
     "max_car_id": 160,
     "name": "hyundai",
     "num_models": 14,
+    "icon_url": require('../assets/brands/hyundai.png'),
   },
   {
     "avg_horsepower": 372.15384615384613,
@@ -285,6 +314,7 @@ const DATA = [
     "max_car_id": 76,
     "name": "cadillac",
     "num_models": 13,
+    "icon_url": require('../assets/brands/cadillac.png'),
   },
   {
     "avg_horsepower": 665,
@@ -294,6 +324,7 @@ const DATA = [
     "max_car_id": 199,
     "name": "lamborghini",
     "num_models": 2,
+    "icon_url": require('../assets/brands/lamborghini.png'),
   },
   {
     "avg_horsepower": 290.32,
@@ -303,6 +334,7 @@ const DATA = [
     "max_car_id": 222,
     "name": "lexus",
     "num_models": 25,
+    "icon_url": require('../assets/brands/lexus.png'),
   },
   {
     "avg_horsepower": 237,
@@ -312,6 +344,7 @@ const DATA = [
     "max_car_id": 6,
     "name": "alfa-romeo",
     "num_models": 2,
+    "icon_url": require('../assets/brands/alfa-romeo.png'),
   },
   {
     "avg_horsepower": 154.33333333333334,
@@ -321,6 +354,7 @@ const DATA = [
     "max_car_id": 242,
     "name": "mini",
     "num_models": 6,
+    "icon_url": require('../assets/brands/mini.png'),
   },
   {
     "avg_horsepower": 216.11111111111111,
@@ -330,6 +364,7 @@ const DATA = [
     "max_car_id": 191,
     "name": "kia",
     "num_models": 9,
+    "icon_url": require('../assets/brands/kia.png'),
   },
   {
     "avg_horsepower": 633,
@@ -339,6 +374,7 @@ const DATA = [
     "max_car_id": 118,
     "name": "ferrari",
     "num_models": 4,
+    "icon_url": require('../assets/brands/ferrari.png'),
   },
   {
     "avg_horsepower": 163.5,
@@ -348,6 +384,7 @@ const DATA = [
     "max_car_id": 251,
     "name": "mazda",
     "num_models": 6,
+    "icon_url": require('../assets/brands/mazda.png'),
   },
   {
     "avg_horsepower": 251.21052631578948,
@@ -357,6 +394,7 @@ const DATA = [
     "max_car_id": 283,
     "name": "nissan",
     "num_models": 19,
+    "icon_url": require('../assets/brands/nissan.png'),
   },
   {
     "avg_horsepower": 236.33333333333334,
@@ -366,6 +404,7 @@ const DATA = [
     "max_car_id": 68,
     "name": "buick",
     "num_models": 3,
+    "icon_url": require('../assets/brands/buick.png'),
   },
   {
     "avg_horsepower": 327.5,
@@ -375,6 +414,7 @@ const DATA = [
     "max_car_id": 183,
     "name": "jaguar",
     "num_models": 6,
+    "icon_url": require('../assets/brands/jaguar.png'),
   },
 ]
 export default function TabOneScreen({navigation}) {
@@ -441,6 +481,7 @@ export default function TabOneScreen({navigation}) {
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={onRefresh} />
       }>
+     
       <View style={styles.categoriesContainer}>
         {data.map((data, index)=> {
           return (
@@ -449,6 +490,13 @@ export default function TabOneScreen({navigation}) {
               onPress={()=> navigation.navigate('Listings', {data})}  
               style={styles.categoryBox}
             >
+
+              <ImageBackground source={data.icon_url} 
+                imageStyle={{ resizeMode: "contain",}}
+                style={{ height: 50, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+
+                
+              </ImageBackground>
               <Text style={styles.categoryTitle}>
                 {data.name}
               </Text>
@@ -464,7 +512,7 @@ export default function TabOneScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: 'white'
   },
   categoriesContainer: {
     flex: 1,
@@ -472,18 +520,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    backgroundColor: 'white'
   },
   categoryBox: { 
     width: '45%', 
     margin: 5, 
     padding: 5, 
-    backgroundColor: 'tomato', 
+    backgroundColor: '#fafafa', 
     borderRadius: 5,  
-    height: 100
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
   },
   categoryTitle: { 
-    color: '#fff', 
+    color: 'black', 
     fontWeight: 'bold', 
     fontSize: 16
   }
