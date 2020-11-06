@@ -6,6 +6,8 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
+import FlashMessage from "react-native-flash-message";
+
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
@@ -17,6 +19,11 @@ export default function App() {
       <SafeAreaProvider>
         <Navigation colorScheme={colorScheme} />
         <StatusBar />
+        <FlashMessage 
+          position="bottom" 
+          floating={true}
+          duration={3000}
+        />
       </SafeAreaProvider>
     );
   }

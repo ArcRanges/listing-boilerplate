@@ -10,6 +10,11 @@ import ListingsScreen from '../screens/ListingsScreen';
 import ListingScreen from '../screens/ListingScreen';
 import ItemsScreen from '../screens/ItemsScreen';
 
+import FavouritesScreen from '../screens/FavouritesScreen';
+
+import MessagesScreen from '../screens/MessagesScreen';
+import MessageScreen from '../screens/MessageScreen';
+
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
 
@@ -21,20 +26,36 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="TabOne"
-      tabBarOptions={{ activeTintColor: 'black' }}>
+      tabBarOptions={{ activeTintColor: 'black', inactiveTintColor: 'lightgray', }}>
       <BottomTab.Screen
         name="Home"
         component={TabOneNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-home" color={'black'} />,
+          tabBarIcon: ({ focused, color }) => <TabBarIcon name="ios-home" color={focused ? 'black' : 'lightgray'} />,
         }}
         
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
+        name="Favourites"
+        component={FavouritesTabNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={'black'} />,
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-heart" color={focused ? 'black' : 'lightgray'} />,
+        }}
+       
+      />
+      <BottomTab.Screen
+        name="Messages"
+        component={MessagesTabNavigator}
+        options={{
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-chatboxes" color={focused ? 'black' : 'lightgray'} />,
+        }}
+       
+      />
+      <BottomTab.Screen
+        name="Settings"
+        component={SettingsTabNavigator}
+        options={{
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-settings" color={focused ? 'black' : 'lightgray'}  />,
         }}
        
       />
@@ -59,6 +80,7 @@ const headerConfig = {
     shadowColor: 'transparent'
   },
 }
+
 function TabOneNavigator() {
   return (
     <TabOneStack.Navigator>
@@ -100,16 +122,85 @@ function TabOneNavigator() {
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const FavouritesStack = createStackNavigator();
 
-function TabTwoNavigator() {
+function FavouritesTabNavigator() {
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <FavouritesStack.Navigator>
+      <FavouritesStack.Screen
+        name="Favourites"
+        component={FavouritesScreen}
+        options={{ 
+          ...headerConfig,
+          headerTitle: 'My Favourites' 
+        }}
       />
-    </TabTwoStack.Navigator>
+      <FavouritesStack.Screen
+        name="Listings"
+        component={ListingsScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
+      />
+      <FavouritesStack.Screen
+        name="Listing"
+        component={ListingScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
+      />
+       <FavouritesStack.Screen
+        name="Items"
+        component={ItemsScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '', 
+        }}
+      />
+    </FavouritesStack.Navigator>
+  );
+}
+
+const MessagesStack = createStackNavigator();
+
+function MessagesTabNavigator() {
+  return (
+    <MessagesStack.Navigator>
+      <MessagesStack.Screen
+        name="Messages"
+        component={MessagesScreen}
+        options={{ 
+          ...headerConfig,
+          headerTitle: 'Messages'
+        }}
+      />
+      <MessagesStack.Screen
+        name="Message"
+        component={MessageScreen}
+        options={{ 
+          ...headerConfig,
+          headerTitle: ''
+        }}
+      />
+    </MessagesStack.Navigator>
+  );
+}
+
+const SettingsStack = createStackNavigator();
+
+function SettingsTabNavigator() {
+  return (
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen
+        name="Settings"
+        component={TabTwoScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: 'Settings' 
+        }}
+      />
+    </SettingsStack.Navigator>
   );
 }

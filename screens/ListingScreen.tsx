@@ -1,14 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { 
   ScrollView, 
   View,
   Text, 
   StyleSheet,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from 'react-native';
-
+import Icon from 'react-native-vector-icons/Ionicons';
 import {FlatListSlider} from 'react-native-flatlist-slider';
+import ActionButton from 'react-native-action-button';
+
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 import Card from '../components/Card';
 
@@ -141,63 +145,99 @@ const images = [
  ]
 export default function ListingScreen({navigation}) {
   const [loading, setLoading] = useState(false);
+  const [isFavourite, setFavourite] = useState(false)
   const [data, setData] = useState(DATA);
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <FlatListSlider
-        autoScroll={false}
-        timer={10000}
-        data={images}
-        contentContainerStyle={{ borderRadius: 25}}
-        indicatorContainerStyle={{ bottom: 10, right: 10, position: 'absolute'}}
-        indicatorActiveColor="white"
-        indicatorInActiveColor="lightgray"
-      />
-      <View style={styles.descriptionContainerStyle}>
-        <Text style={styles.listTitle}>
-          Acura CL 2010
-        </Text>
-        <Paragraph>
-          Posted 2 days ago from Vancouver, BC
-        </Paragraph>
-        <Text style={styles.listTitle}>
-          Parts Listed
-        </Text>
+  const addToFavourites = () => {
+    
+    if (isFavourite) {
+      setFavourite(false);
+      showMessage({
+        message: "Oh no!",
+        description: "This listing has been removed from your favourites.",
+        type: "warning",
+      });
+    } else {
+      setFavourite(true);
+      showMessage({
+        message: "Success!",
+        description: "This listing has been added to your favourites.",
+        type: "success",
+      });
+    }
+   
+  }
 
-        {
-          DATA[0].parts.map((d, i)=> {
-            return (
-              <ListItem item={d} key={i} hideAdd={true}/>
-            )
-          })
-        }
-
-        <TouchableOpacity onPress={()=> navigation.navigate('Items', {})}
-          style={{ justifyContent: 'center', alignItems: 'center', margin: 10}}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold'}}>VIEW MORE</Text>
-
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: ()=> 
+        <TouchableOpacity onPress={addToFavourites}>
+          <Icon name={isFavourite ? "ios-heart" : "ios-heart-empty"} style={{ color: 'black', fontSize: 28, marginRight: 15}} />
         </TouchableOpacity>
-      
-       
-      </View>
-      
-      <View style={{ paddingLeft: 20}}>
-        <Text style={styles.listTitle}>
-          More from this seller
-        </Text>
-      </View>
-      
-      <View style={styles.listingContainer}>
-        {data.map((data, index)=> {
-          return (
-            <Card key={index} data={data} navigation={navigation}/>
-          )
-        })}
-      </View>
-       
-    </ScrollView>
+    })
+  }, [isFavourite])
+  return (
+    <View style={{flex: 1}}>
+      <ActionButton 
+        style={{zIndex: 2}} 
+        onPress={()=> console.log('pressed!')}
+        renderIcon={()=> <Icon name="ios-chatboxes" style={styles.actionButtonIcon} />}
+        buttonColor="#147efb"
+      >
+      </ActionButton>
+      <ScrollView contentContainerStyle={styles.container}>
+        
+        <FlatListSlider
+          autoScroll={false}
+          timer={10000}
+          data={images}
+          contentContainerStyle={{ borderRadius: 25}}
+          indicatorContainerStyle={{ bottom: 10, right: 10, position: 'absolute'}}
+          indicatorActiveColor="white"
+          indicatorInActiveColor="lightgray"
+        />
+        <View style={styles.descriptionContainerStyle}>
+          <Text style={styles.listTitle}>
+            Acura CL 2010
+          </Text>
+          <Paragraph>
+            Posted 2 days ago from Vancouver, BC
+          </Paragraph>
+          <Text style={styles.listTitle}>
+            Parts Listed
+          </Text>
+
+          {
+            DATA[0].parts.map((d, i)=> {
+              return (
+                <ListItem item={d} key={i} hideAdd={true}/>
+              )
+            })
+          }
+
+          <TouchableOpacity onPress={()=> navigation.navigate('Items', {})}
+            style={{ justifyContent: 'center', alignItems: 'center', margin: 10}}>
+            <Text style={{ color: 'black', fontWeight: 'bold'}}>VIEW MORE</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={{ paddingLeft: 20}}>
+          <Text style={styles.listTitle}>
+            More from this seller
+          </Text>
+        </View>
+        
+        <View style={styles.listingContainer}>
+          {data.map((data, index)=> {
+            return (
+              <Card key={index} data={data} navigation={navigation}/>
+            )
+          })}
+        </View>
+        
+      </ScrollView>
+    </View>
+    
   )
 }
 
@@ -245,5 +285,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontWeight: 'bold',
     fontSize: 22
+  },
+  actionButtonIcon: {
+    fontSize: 26,
+    height: 26,
+    color: 'white',
   },
 })

@@ -10,51 +10,39 @@ import {
   Avatar
 } from 'react-native-paper';
 
-const ListItem = ({item, hideAdd, hideNext}) => {
-  const addCommas = (num) => {
-    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-  }
-
-  const getColor = (s) => {
-    if (s == 'sold') return 'rgba(0,0,0, 0.5)';
-    if (s == 'available') return 'rgba(0,0,0,1)';
-    if (s == 'pending') return 'rgba(0,0,0,0.1)';
-  }
-  
+const ChatItem = ({item, hideNext, navigation}) => {
   return (
     <View style={styles.listItemContainer}>
       <View style={styles.box1}>
         <Avatar.Image size={48} source={{uri: 'https://picsum.photos/64/64'}} style={{ marginRight: 10}} />
         <View>
           <Subheading style={{ fontWeight: 'bold'}}>
-            {item.name}
+            {item.username}
           </Subheading>
           <Paragraph>
-            <Text style={styles.price}>${addCommas(item.price)}</Text>
+            <Text style={styles.lastMessage}>{item.message[0].text}</Text>
           </Paragraph>
         </View>
         
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-        {/* <Button mode="contained" 
-          style={{ justifyContent: 'center', alignItems: 'center', marginRight: 10, backgroundColor: getColor(item.status)}}
-        >
-          { item.status == 'available' ? "Message" : item.status}
-        </Button> */}
-        {!hideNext && <Ionicons name="ios-arrow-dropright" color="black" size={32} style={{marginRight: 10}}/>}
-        {!hideAdd && <Ionicons name="ios-add-circle-outline" size={32} color="black" />}
+        {!hideNext && 
+          <TouchableOpacity onPress={()=> navigation.navigate('Message', {})}>
+            <Ionicons name="ios-arrow-dropright" color="black" size={32} style={{marginRight: 10}}/>
+          </TouchableOpacity>
+        }
       </View>
       
     </View>
   )
 }
 
-export default ListItem
+export default ChatItem
 
 const styles = StyleSheet.create({
-  price: {
-    fontWeight: 'bold',
-    color: 'red'
+  lastMessage: {
+    fontStyle: 'italic',
+    color: 'darkgray'
   },
   box1: {
     flexDirection: 'row',

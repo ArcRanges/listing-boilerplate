@@ -72,7 +72,7 @@ export default function ItemsScreen({navigation}) {
       style={styles.container}
       data={DATA.parts}
       keyExtractor={( item ) => item.id.toString()}
-      renderItem={ListItem}
+      renderItem={(item) => <ListItem item={item.item} hideNext={true}/>}
       extraData={loading}
       refreshing={loading}
       onRefresh={onRefresh}
