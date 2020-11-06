@@ -18,6 +18,7 @@ import Card from '../components/Card';
 
 import {
   Paragraph,
+  Avatar
 } from 'react-native-paper';
 
 import ListItem from '../components/ListItem';
@@ -168,11 +169,15 @@ export default function ListingScreen({navigation}) {
    
   }
 
+  const visitUser = (id) => {
+    navigation.navigate("Profile", {id})
+  }
+  
   useEffect(() => {
     navigation.setOptions({
       headerRight: ()=> 
-        <TouchableOpacity onPress={addToFavourites}>
-          <Icon name={isFavourite ? "ios-heart" : "ios-heart-empty"} style={{ color: 'black', fontSize: 28, marginRight: 15}} />
+        <TouchableOpacity onPress={()=> visitUser(1)}>
+          <Icon name="ios-contact" style={{ color: 'black', fontSize: 28, marginRight: 15}} />
         </TouchableOpacity>
     })
   }, [isFavourite])
@@ -197,16 +202,51 @@ export default function ListingScreen({navigation}) {
           indicatorInActiveColor="lightgray"
         />
         <View style={styles.descriptionContainerStyle}>
+          <View style={styles.listingInfoBox}>
+            <View style={styles.pricingBox}>
+              <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 28}}>
+                $2050 <Text style={{textDecorationLine: 'line-through', color: 'darkgray'}}>$3000</Text>
+              </Text>
+            </View>
+            <TouchableOpacity onPress={addToFavourites} style={[styles.addToFavourites, {borderColor: isFavourite ? 'lightcoral' :'black'}]}>
+              <Icon name={isFavourite ? "ios-heart" : "ios-heart-empty"} style={{ color: isFavourite ? 'lightcoral' :'black', fontSize: 28}} />
+            </TouchableOpacity>
+           
+          </View>
+          {/* <View style={styles.sellerContainer}>
+            <Avatar.Image size={64} source={{uri: 'https://picsum.photos/64/64'}} />
+            <View style={{marginLeft: 15}}>
+              <Text style={styles.listTitle}>
+                Brian M.
+              </Text>
+              <Paragraph>
+                Vancouver, BC
+              </Paragraph>
+            </View>
+          </View> */}
+         
+
           <Text style={styles.listTitle}>
             Acura CL 2010
           </Text>
           <Paragraph>
-            Posted 2 days ago from Vancouver, BC
+            Posted 2 days ago
           </Paragraph>
+
           <Text style={styles.listTitle}>
-            Parts Listed
+            Short Description
           </Text>
 
+          <Paragraph>
+            Mileage: 125km
+            Gas Efficiency: 2L/100km
+            Year Model: 2020, Acura
+            Buy whole car for $2050
+          </Paragraph>
+          <Text style={styles.listTitle}>
+            Parts Available
+          </Text>
+          
           {
             DATA[0].parts.map((d, i)=> {
               return (
@@ -245,6 +285,31 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingBottom: 40,
+  },
+  listingInfoBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sellerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  pricingBox: { 
+    backgroundColor: 'gold', 
+    borderRadius: 15, 
+    width: '75%', 
+    padding: 15
+  },
+  addToFavourites: { 
+    backgroundColor: '#fafafa', 
+    borderRadius: 15, 
+    width: '20%', 
+    padding: 15, 
+    alignItems: 'center',
+    borderColor: 'black',
+    borderWidth: 1,
   },
   descriptionContainerStyle: {
     // padding: 20,

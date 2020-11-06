@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 
 import { Ionicons } from '@expo/vector-icons';
 
-export default function Card({navigation, data}) {
+export default function Card({navigation, data, isAllowedEditing}) {
   return (
     <View style={styles.listingBox}>
       <Image source={{ uri: data.img_url}} 
@@ -14,13 +14,26 @@ export default function Card({navigation, data}) {
         <Text style={styles.cardTitle}>{data.title}</Text>
         <Text style={styles.cardSubtitle}>{`${data.location.city}, ${data.location.province}`}</Text>
         {/* <Text style={{ color: 'rgba(0,0,0,0.5)', fontSize: 12, fontStyle: 'italic'}}>Posted 2 days ago in </Text> */}
-        <TouchableOpacity  style={styles.buttonStyle}
-          onPress={()=> navigation.navigate('Listing', {data})}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold' }}>View More</Text>
 
-          <Ionicons name="ios-arrow-dropright" color="black" size={28}/>
-        </TouchableOpacity>
+        
+        {isAllowedEditing && 
+          <TouchableOpacity style={styles.buttonStyle}
+            onPress={()=> navigation.navigate('EditListing', {data})}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>Edit Listing</Text>
+            <Ionicons name="md-create" color="black" size={24}/>
+          </TouchableOpacity>
+        }
+        {!isAllowedEditing &&
+          <TouchableOpacity  style={styles.buttonStyle}
+            onPress={()=> navigation.navigate('Listing', {data})}
+          >
+           <Text style={{ color: 'black', fontWeight: 'bold' }}>View More</Text>
+ 
+           <Ionicons name="ios-arrow-dropright" color="black" size={28}/>
+         </TouchableOpacity>
+        }
+       
         
       </View>
     </View>

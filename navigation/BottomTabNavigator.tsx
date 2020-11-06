@@ -13,6 +13,7 @@ import ItemsScreen from '../screens/ItemsScreen';
 import FavouritesScreen from '../screens/FavouritesScreen';
 
 import MyListingsScreen from '../screens/MyListingsScreen';
+import AddListingScreen from '../screens/AddListingScreen';
 
 import MessagesScreen from '../screens/MessagesScreen';
 import MessageScreen from '../screens/MessageScreen';
@@ -133,6 +134,15 @@ function TabOneNavigator() {
           headerTitle: '', 
         }}
       />
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
+          headerRight: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginRight: 20}}/>
+        }}
+      />
     </TabOneStack.Navigator>
   );
 }
@@ -174,6 +184,15 @@ function FavouritesTabNavigator() {
           headerTitle: '', 
         }}
       />
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
+          headerRight: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginRight: 20}}/>
+        }}
+      />
     </FavouritesStack.Navigator>
   );
 }
@@ -199,6 +218,15 @@ function MessagesTabNavigator() {
           headerTitle: ''
         }}
       />
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
+          headerRight: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginRight: 20}}/>
+        }}
+      />
     </MessagesStack.Navigator>
   );
 }
@@ -222,6 +250,14 @@ function MyListingsTabNavigator() {
         options={{
           ...headerConfig,
           headerTitle: ''
+        }}
+      />
+       <MyListingsStack.Screen
+        name="AddListing"
+        component={AddListingScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
         }}
       />
       <MyListingsStack.Screen

@@ -131,7 +131,10 @@ export default function MyListingsScreen({navigation}) {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: ()=> <Ionicons name="ios-add" color="black" size={28} style={{marginRight: 20}}/>
+      headerRight: ()=> 
+        <TouchableOpacity onPress={()=> navigation.navigate("AddListing")}>
+          <Ionicons name="ios-add" color="black" size={28} style={{marginRight: 20}}/>
+        </TouchableOpacity>
     })
   }, [])
   
@@ -144,7 +147,12 @@ export default function MyListingsScreen({navigation}) {
       <View style={styles.listingContainer}>
         {data.map((data, index)=> {
           return (
-            <Card key={index} data={data} navigation={navigation}/>
+            <Card 
+              key={index} 
+              data={data} 
+              navigation={navigation}
+              isAllowedEditing={true}
+            />
           )
         })}
       </View>
