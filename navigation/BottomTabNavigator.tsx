@@ -12,10 +12,12 @@ import ItemsScreen from '../screens/ItemsScreen';
 
 import FavouritesScreen from '../screens/FavouritesScreen';
 
+import MyListingsScreen from '../screens/MyListingsScreen';
+
 import MessagesScreen from '../screens/MessagesScreen';
 import MessageScreen from '../screens/MessageScreen';
 
-import TabTwoScreen from '../screens/TabTwoScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -32,6 +34,7 @@ export default function BottomTabNavigator() {
         component={TabOneNavigator}
         options={{
           tabBarIcon: ({ focused, color }) => <TabBarIcon name="ios-home" color={focused ? 'black' : 'lightgray'} />,
+          tabBarLabel: ''
         }}
         
       />
@@ -40,6 +43,16 @@ export default function BottomTabNavigator() {
         component={FavouritesTabNavigator}
         options={{
           tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-heart" color={focused ? 'black' : 'lightgray'} />,
+          tabBarLabel: ''
+        }}
+       
+      />
+      <BottomTab.Screen
+        name="My Listings"
+        component={MyListingsTabNavigator}
+        options={{
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-list" color={focused ? 'black' : 'lightgray'} />,
+          tabBarLabel: ''
         }}
        
       />
@@ -47,15 +60,17 @@ export default function BottomTabNavigator() {
         name="Messages"
         component={MessagesTabNavigator}
         options={{
-          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-chatboxes" color={focused ? 'black' : 'lightgray'} />,
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-chatbubbles" color={focused ? 'black' : 'lightgray'} />,
+          tabBarLabel: ''
         }}
        
       />
       <BottomTab.Screen
-        name="Settings"
-        component={SettingsTabNavigator}
+        name="Profile"
+        component={ProfileTabNavigator}
         options={{
-          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-settings" color={focused ? 'black' : 'lightgray'}  />,
+          tabBarIcon: ({focused, color }) => <TabBarIcon name="ios-contact" color={focused ? 'black' : 'lightgray'}  />,
+          tabBarLabel: ''
         }}
        
       />
@@ -188,19 +203,51 @@ function MessagesTabNavigator() {
   );
 }
 
-const SettingsStack = createStackNavigator();
+const MyListingsStack = createStackNavigator();
 
-function SettingsTabNavigator() {
+function MyListingsTabNavigator() {
   return (
-    <SettingsStack.Navigator>
-      <SettingsStack.Screen
-        name="Settings"
-        component={TabTwoScreen}
+    <MyListingsStack.Navigator>
+      <MyListingsStack.Screen
+        name="MyListings"
+        component={MyListingsScreen}
         options={{
           ...headerConfig,
-          headerTitle: 'Settings' 
+          headerTitle: 'My Listings',
         }}
       />
-    </SettingsStack.Navigator>
+      <MyListingsStack.Screen
+        name="Listing"
+        component={ListingScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: ''
+        }}
+      />
+      <MyListingsStack.Screen
+        name="Items"
+        component={ItemsScreen}
+        options={{
+          ...headerConfig,
+        }}
+      />
+    </MyListingsStack.Navigator>
+  )
+}
+const ProfileStack = createStackNavigator();
+
+function ProfileTabNavigator() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
+          headerRight: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginRight: 20}}/>
+        }}
+      />
+    </ProfileStack.Navigator>
   );
 }
