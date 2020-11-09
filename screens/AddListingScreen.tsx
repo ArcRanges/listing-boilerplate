@@ -67,7 +67,7 @@ export default function AddListingScreen({navigation, route}) {
     if (route.params && route.params.images) {
       console.log(images);
     }
-  }, [loading, title, images, choosingImages]);
+  }, [loading, images, choosingImages]);
 
   const handleImages = (images) => {
     console.log(images);
