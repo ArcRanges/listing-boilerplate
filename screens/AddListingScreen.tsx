@@ -1,9 +1,13 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
+import { useFocusEffect } from '@react-navigation/native';
 import { 
   View,
   Text,
   StyleSheet,
-  TouchableOpacity 
+  TouchableOpacity,
+  Modal,
+  ImageBackground,
+  Dimensions,
 } from 'react-native'
 
 import {
@@ -11,13 +15,20 @@ import {
 } from 'react-native-paper';
 
 import { showMessage } from "react-native-flash-message";
-
 import Spinner from 'react-native-loading-spinner-overlay';
+import ImageBrowser from 'rn-multiple-image-picker';
 
-export default function AddListingScreen({navigation}) {
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+export default function AddListingScreen({navigation, route}) {
   const [loading, setLoading] = useState(false)
-  const [title, setTitle] = useState('')
-  
+  const [year, setYear] = useState('')
+  const [make, setMake] = useState('')
+  const [model, setModel] = useState('')
+
+  const [images, setImages] = useState([]);
+  const [choosingImages, setChoosingImages] = useState(false)
+
   const onSubmit = () => {
     setLoading(true)
 
@@ -32,14 +43,37 @@ export default function AddListingScreen({navigation}) {
     },1000)
   }
 
+  useFocusEffect(
+    React.useCallback(() => {
+      // console.log(route);
+      if (route.params && route.params.images.length){
+        // console.log(route);
+        let {images} = route.params;
+        // console.log(images);
+        setImages(images)
+      }
+    }, [route.params])
+  )
+
   useEffect(()=> {
     navigation.setOptions({
+      headerShown: true,
       headerRight: () => 
       <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
         <Text style={{color: 'black', fontWeight: 'bold' }}>DONE</Text>
       </TouchableOpacity>
     })
-  }, [loading, title])
+    
+    if (route.params && route.params.images) {
+      console.log(images);
+    }
+  }, [loading, title, images, choosingImages]);
+
+  const handleImages = (images) => {
+    console.log(images);
+    
+  };
+
   return (
     <View style={styles.container}>
       <Spinner
@@ -48,19 +82,51 @@ export default function AddListingScreen({navigation}) {
       <Text style={styles.title}>Add New Listing</Text>
       <View style={styles.formContainer}>
         <TextInput
-          label="Title"
-          value={title}
+          label="Year"
+          value={year}
           mode="outlined"
           placeholder="Write something descriptive"
-          onChangeText={text => setTitle(text)}
+          onChangeText={text => setYear(text)}
         />
         <TextInput
-          label="Description"
-          value={title}
+          label="Make"
+          value={make}
           mode="outlined"
           placeholder="Write something descriptive"
-          onChangeText={text => setTitle(text)}
+          onChangeText={text => setMake(text)}
         />
+        
+        <TextInput
+          label="Model"
+          value={model}
+          mode="outlined"
+          placeholder="Write something descriptive"
+          onChangeText={text => setModel(text)}
+        />
+
+        <TouchableOpacity style={styles.selectImagesBtnStyle}
+          onPress={()=> navigation.navigate('BrowseImages')}>
+          <Text style={{color: 'white', fontWeight: 'bold' }}>{images.length != 0 ? "Change Selected Images" : "Select Images"}</Text>
+        </TouchableOpacity>
+
+        { images.length != 0 &&
+          <View style={{ marginTop: 10, }}>
+            <Text style={{fontSize: 16}}>Images Selected</Text>
+
+            <View style={styles.imagesContainer}>
+              {images.map((img, index)=> {
+                return (
+                  <ImageBackground 
+                    key={index}
+                    style={styles.imgContainer} 
+                    source={{uri: img.uri}}
+                  />
+                )
+              })}
+            </View>
+          </View>
+        }
+        
       </View>
      
     </View>
@@ -86,5 +152,24 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     padding: 10
+  },
+  imagesContainer: {
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    justifyContent: 'space-evenly', 
+    alignItems: 'center',
+    marginTop: 15
+  },
+  imgContainer: { 
+    height: SCREEN_WIDTH/4, 
+    width: SCREEN_WIDTH/4
+  },
+  selectImagesBtnStyle: { 
+    width: '100%', 
+    padding: 20, 
+    borderWidth: 1,
+    borderRadius: 5, 
+    marginTop: 10, 
+    backgroundColor: 'black',
   }
 })
