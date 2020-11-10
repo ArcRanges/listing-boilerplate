@@ -6,5 +6,10 @@
   "STORAGE_BUCKET": "car-parts-app-92d06.appspot.com",
   "MESSAGING_SENDER_ID": "371376032637",
   "APP_ID": "1:371376032637:web:f3a00368c7b34118f09a14",
-  "MEASUREMENT_ID": "G-F33Y3J8R9C"
+  "MEASUREMENT_ID": "G-F33Y3J8R9C",
+  "CAR_DATA_API": {
+    "url": "https://parseapi.back4app.com",
+    "app_id": "qgxAeRBd4700KqnpinqniHftxVVq807Bv9W6nBIB",
+    "key": "UjTxA4g9psD1TbKfDQYzVJdX7UMlstHjZarZmHEF"
+  }
 }
