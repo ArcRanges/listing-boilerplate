@@ -4,11 +4,16 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
+  ActivityIndicator,
+  Dimensions,
+  Platform
 } from 'react-native';
-
+import SearchBar from 'react-native-platform-searchbar'
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 import {
   Placeholder,
@@ -17,16 +22,6 @@ import {
 } from "rn-placeholder";
 
 const DATA = [
-  {
-    "avg_horsepower": 291.3333333333333,
-    "avg_price": 32971.666666666664,
-    "id": 1,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Chrysler-logo-1.jpg",
-    "max_car_id": 104,
-    "name": "Chrysler",
-    "num_models": 3,
-    "icon_url": require('../assets/brands/acura.png'),
-  },
   {
     "avg_horsepower": 190.625,
     "avg_price": 27965,
@@ -98,26 +93,6 @@ const DATA = [
     "icon_url": require('../assets/brands/subaru.png'),
   },
   {
-    "avg_horsepower": 518.1666666666666,
-    "avg_price": 394858.3333333333,
-    "id": 9,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Rolls-Royce-logo-1.jpg",
-    "max_car_id": 315,
-    "name": "Rolls Royce",
-    "num_models": 6,
-    "icon_url": require('../assets/brands/rolls-royce.png'),
-  },
-  {
-    "avg_horsepower": 475.25,
-    "avg_price": 203787.5,
-    "id": 10,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Porsche-logo-1.jpg",
-    "max_car_id": 301,
-    "name": "Porsche",
-    "num_models": 8,
-    "icon_url": require('../assets/brands/porsche.png'),
-  },
-  {
     "avg_horsepower": 379.2258064516129,
     "avg_price": 74501.6129032258,
     "id": 11,
@@ -138,44 +113,14 @@ const DATA = [
     "icon_url": require('../assets/brands/volvo.png'),
   },
   {
-    "avg_horsepower": 324.6,
-    "avg_price": 45836,
-    "id": 13,
-    "img_url": "http://ts1.mm.bing.net/th?id=OIP.Mce36a6de2b649f08b6c612c1bcfbcf58H2&pid=15.1",
-    "max_car_id": 236,
-    "name": "Lincoln",
-    "num_models": 5,
-    "icon_url": require('../assets/brands/lincoln.png'),
-  },
-  {
-    "avg_horsepower": 444,
-    "avg_price": 139934,
-    "id": 14,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Maserati-logo-1.jpg",
-    "max_car_id": 245,
-    "name": "Maserati",
-    "num_models": 4,
-    "icon_url": require('../assets/brands/maserati.png'),
-  },
-  {
     "avg_horsepower": 286.75,
     "avg_price": 45752.5,
     "id": 15,
     "img_url": "http://www.carlogos.org/uploads/car-logos/Acura-logo-1.jpg",
     "max_car_id": 3,
-    "name": "acura",
+    "name": "Acura",
     "num_models": 4,
     "icon_url": require('../assets/brands/acura.png'),
-  },
-  {
-    "avg_horsepower": 641,
-    "avg_price": 272862.5,
-    "id": 16,
-    "img_url": "http://ts4.mm.bing.net/th?id=OIP.Mc8b9a49eb7febd5471812578a1c2e300o0&pid=15.1",
-    "max_car_id": 254,
-    "name": "Mclaren",
-    "num_models": 2,
-    "icon_url": require('../assets/brands/mclaren.png'),
   },
   {
     "avg_horsepower": 311.375,
@@ -218,26 +163,6 @@ const DATA = [
     "icon_url": require('../assets/brands/dodge.png'),
   },
   {
-    "avg_horsepower": 540.3333333333334,
-    "avg_price": 235800,
-    "id": 21,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Bentley-logo-1.jpg",
-    "max_car_id": 67,
-    "name": "Bentley",
-    "num_models": 3,
-    "icon_url": require('../assets/brands/bentley.png'),
-  },
-  {
-    "avg_horsepower": 531,
-    "avg_price": 199819,
-    "id": 22,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Aston-Martin-logo-1.jpg",
-    "max_car_id": 11,
-    "name": "Aston-martin",
-    "num_models": 5,
-    "icon_url": require('../assets/brands/aston-martin.png'),
-  },
-  {
     "avg_horsepower": 250.8421052631579,
     "avg_price": 33572.36842105263,
     "id": 23,
@@ -246,16 +171,6 @@ const DATA = [
     "name": "Chevrolet",
     "num_models": 19,
     "icon_url": require('../assets/brands/chevrolet.png'),
-  },
-  {
-    "avg_horsepower": 304,
-    "avg_price": 60779.166666666664,
-    "id": 24,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Land-Rover-logo-1.jpg",
-    "max_car_id": 206,
-    "name": "Land Rover",
-    "num_models": 6,
-    "icon_url": require('../assets/brands/land-rover.png'),
   },
   {
     "avg_horsepower": 152.14285714285714,
@@ -273,7 +188,7 @@ const DATA = [
     "id": 26,
     "img_url": "http://www.carlogos.org/uploads/car-logos/Volkswagen-logo-1.jpg",
     "max_car_id": 363,
-    "name": "volkswagen",
+    "name": "Volkswagen",
     "num_models": 12,
     "icon_url": require('../assets/brands/volkswagen.png'),
   },
@@ -318,16 +233,6 @@ const DATA = [
     "icon_url": require('../assets/brands/cadillac.png'),
   },
   {
-    "avg_horsepower": 665,
-    "avg_price": 393025,
-    "id": 31,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Lamborghini-logo-1.jpg",
-    "max_car_id": 199,
-    "name": "Lamborghini",
-    "num_models": 2,
-    "icon_url": require('../assets/brands/lamborghini.png'),
-  },
-  {
     "avg_horsepower": 290.32,
     "avg_price": 52488.2,
     "id": 32,
@@ -336,16 +241,6 @@ const DATA = [
     "name": "Lexus",
     "num_models": 25,
     "icon_url": require('../assets/brands/lexus.png'),
-  },
-  {
-    "avg_horsepower": 237,
-    "avg_price": 59900,
-    "id": 33,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Alfa-Romeo-logo-1.jpg",
-    "max_car_id": 6,
-    "name": "Alfa Romeo",
-    "num_models": 2,
-    "icon_url": require('../assets/brands/alfa-romeo.png'),
   },
   {
     "avg_horsepower": 154.33333333333334,
@@ -366,16 +261,6 @@ const DATA = [
     "name": "Kia",
     "num_models": 9,
     "icon_url": require('../assets/brands/kia.png'),
-  },
-  {
-    "avg_horsepower": 633,
-    "avg_price": 276428,
-    "id": 36,
-    "img_url": "http://www.carlogos.org/uploads/car-logos/Ferrari-logo-1.jpg",
-    "max_car_id": 118,
-    "name": "Ferrari",
-    "num_models": 4,
-    "icon_url": require('../assets/brands/ferrari.png'),
   },
   {
     "avg_horsepower": 163.5,
@@ -421,6 +306,7 @@ const DATA = [
 export default function TabOneScreen({navigation}) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [value, setValue] = useState('');
 
   const fetchData = () => {
     setLoading(true)
@@ -475,14 +361,24 @@ export default function TabOneScreen({navigation}) {
       </View>
     )
   }
-
+  
   return (
     <ScrollView
       style={styles.container}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={onRefresh} />
       }>
-      
+      <SearchBar
+        value={value}
+        onChangeText={setValue}
+        style={styles.searchStyle}
+        placeholder="Search for anything..."
+        platform={Platform.OS}
+      >
+        {loading ? (
+          <ActivityIndicator style={{ marginRight: 10 }} />
+        ) : undefined}
+      </SearchBar>
       <Text style={[styles.categoryTitle, {fontSize: 22, marginLeft: 15}]}>
         Search by Brand
       </Text>
@@ -498,7 +394,7 @@ export default function TabOneScreen({navigation}) {
 
               <ImageBackground source={data.icon_url} 
                 imageStyle={{ resizeMode: "contain",}}
-                style={{ height: 50, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                style={{ height: 50, width: '100%', justifyContent: 'center', alignItems: 'center',  }}>
 
                 
               </ImageBackground>
@@ -544,5 +440,11 @@ const styles = StyleSheet.create({
     color: 'black', 
     fontWeight: 'bold', 
     fontSize: 16
+  },
+  searchStyle: {
+    width: SCREEN_WIDTH - 30, 
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 10
   }
 });

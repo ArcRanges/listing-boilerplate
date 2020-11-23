@@ -6,12 +6,14 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  Alert
+  Linking,
+  Alert,
+  Platform
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {FlatListSlider} from 'react-native-flatlist-slider';
 import ActionButton from 'react-native-action-button';
-
+import call from 'react-native-phone-call';
 import { showMessage, hideMessage } from "react-native-flash-message";
 
 import Card from '../components/Card';
@@ -181,12 +183,22 @@ export default function ListingScreen({navigation}) {
         </TouchableOpacity>
     })
   }, [isFavourite])
+
+  const openCallWindow = () => {
+    let phone = '6041112231';
+    const args = {
+      number: phone, // String value with the number to call
+      prompt: true // Optional boolean property. Determines if the user should be prompt prior to the call 
+    }
+    call(args).catch(console.error)
+  }
+
   return (
     <View style={{flex: 1}}>
       <ActionButton 
         style={{zIndex: 2}} 
-        onPress={()=> console.log('pressed!')}
-        renderIcon={()=> <Icon name="ios-chatboxes" style={styles.actionButtonIcon} />}
+        onPress={openCallWindow}
+        renderIcon={()=> <Icon name="ios-call" style={styles.actionButtonIcon} />}
         buttonColor="#147efb"
       >
       </ActionButton>

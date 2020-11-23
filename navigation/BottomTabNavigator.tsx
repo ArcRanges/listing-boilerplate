@@ -58,7 +58,7 @@ export default function BottomTabNavigator() {
         }}
        
       />
-      <BottomTab.Screen
+      {/* <BottomTab.Screen
         name="Messages"
         component={MessagesTabNavigator}
         options={{
@@ -66,7 +66,7 @@ export default function BottomTabNavigator() {
           tabBarLabel: ''
         }}
        
-      />
+      /> */}
       <BottomTab.Screen
         name="Profile"
         component={ProfileTabNavigator}
