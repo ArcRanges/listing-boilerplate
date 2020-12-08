@@ -33,7 +33,7 @@ export default function BrowseImageScreen({navigation}) {
       options={{
         assetsType: ['photo'],
         noAssetsText: 'No media found.',
-        maxSelections: 5,
+        maxSelections: 6,
         margin: 3,
         portraitCols: 4,
         landscapeCols: 5,

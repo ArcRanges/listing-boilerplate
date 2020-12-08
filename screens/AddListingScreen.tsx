@@ -14,51 +14,190 @@ import {
   TextInput
 } from 'react-native-paper';
 
+import firebase from '../firebase/Fire';
+import ProgressBar from 'react-native-progress/Bar';
 import { showMessage } from "react-native-flash-message";
 import Spinner from 'react-native-loading-spinner-overlay';
 import ModalSelector from 'react-native-modal-selector'
 
-import qs from 'qs-stringify';
-
 import {CAR_DATA_API} from '../config';
 import CAR_DATA from '../car_data';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function AddListingScreen({navigation, route}) {
+  const { user } = route.params;
   const [loading, setLoading] = useState(false)
+  const [price, setPrice] = useState('')
   const [year, setYear] = useState('')
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
+  const [description, setDescription] = useState('')
 
   const [YEAR_DATA, setYearData] = useState([]);
   const [MAKE_DATA, setCarData] = useState([]);
-  const [MODEL_DATA, setModelData] = useState([]);
+  // const [MODEL_DATA, setModelData] = useState([]);
 
   const [images, setImages] = useState([]);
-  const [choosingImages, setChoosingImages] = useState(false)
+  // const [allFieldsValid, setAllFieldsValid] = useState(false);
+  const [choosingImages, setChoosingImages] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
 
-  const onSubmit = () => {
+  const dbref = firebase.database();
+
+  const convertImageToBlob = async (uri) => {
+    return await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(e) {
+        console.log(e);
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+  }
+  const uploadImages = async (list_key) => {
+    const uploadProgress = await new Promise((resolve, reject)=> {
+      let percent = 0.0;
+      
+      Promise.all(
+        images.map(async (img, index) => {
+          const { uri, filename } = img;
+          const file_ext = filename.split('.')[1];
+    
+          // convert to blob
+          const blob = await convertImageToBlob(uri);
+    
+          const ffilename = index + "." + file_ext;
+          const ref = firebase.storage().ref('/images/' + list_key + "/" + ffilename)
+          const task = ref.put(blob);
+          
+          console.log("uploading file : " + ffilename);
+          
+          task.on('state_changed', taskSnapshot => {
+            let current = (taskSnapshot.bytesTransferred/taskSnapshot.totalBytes) / images.length;
+            setCurrentProgress(currentProgress => current + currentProgress)
+            // console.log("status " + (taskSnapshot.bytesTransferred/taskSnapshot.totalBytes)* 100 + "%");
+          }, error => {
+            switch (error.code) {
+              case 'storage/unauthorized':
+                reject("Unauthorized upload")
+                break;
+              case 'storage/canceled':
+                reject("User cancelled upload");
+                break;
+              case 'storage/unknown':
+                reject("An unknown error occurred")
+                break;
+            }
+          }, async () => {
+            // console.log("file " + index + " has been uploaded");
+            blob.close();
+
+            let url = await ref.getDownloadURL();
+            let updates = {}
+            updates[index] = url;
+            firebase.database().ref('/listings/' + list_key  + '/images').update(updates) 
+          });
+        })
+      ).then(()=> {
+        setTimeout(()=> {
+          showMessage({
+            message: "Success!",
+            description: "This listing has been successfully added.",
+            type: "success",
+          });
+          
+          // setLoading(false)
+          navigation.goBack()
+        }, 2000)
+      })
+    });
+  }
+
+  const allFieldsAreValid = () => {
+    console.log( year === '' || 
+    make === '' ||
+    model === '' ||
+    description === '' );
+    
+    return parseInt(price) === 0 ||
+      year === '' || 
+      make === '' ||
+      model === '' ||
+      description === '' ||
+      images.length === 0;
+  }
+
+  const onSubmit = async () => {
     setLoading(true)
-
-    setTimeout(()=> {
+    let fieldsValid = allFieldsAreValid()
+    if (fieldsValid) {
+      // show error message
       setLoading(false)
+      console.log("not all fields are valid");
       showMessage({
-        message: "Success!",
-        description: "This listing has been successfully added.",
-        type: "success",
+        message: "Oh no!",
+        description: "Please make sure that all required fields are filled.",
+        type: "danger",
       });
-      navigation.goBack()
-    },1000)
+      return;
+    }
+
+    const _dateCreated = firebase.database.ServerValue.TIMESTAMP;
+    let data = {
+      price,
+      year,
+      make,
+      model,
+      description,
+      _dateCreated,
+      _createdBy: user.uid
+    }
+
+    if (Object.entries(data).length !== 0) {
+      let make_lower = make.toLowerCase();
+      let list_key = dbref
+        .ref('/listings/')
+        .push()
+        .key;
+      
+      dbref.ref('/listings/' + list_key)
+        .set(data)
+        .then(()=> {
+          console.log("successfully inserted new data");
+        })
+      
+      dbref.ref('users/' + user.uid + '/listings').limitToLast(1).once('value').then((snapshot => {
+        // let index = snapshot.val() == null ? 0 : snapshot.val()._index;
+        let listing = {
+          _id: list_key,
+        }
+        // let listing = {}
+        // listing[index] = list_key;
+        // listing["_index"] = index;
+        dbref.ref('users/' + user.uid + '/listings').push(listing)
+      }));
+
+      uploadImages(list_key);
+
+    } else {
+      setLoading(false)
+    }
+   
   }
 
   useFocusEffect(
     React.useCallback(() => {
       // console.log(route);
-      if (route.params && route.params.images.length){
+      if (route.params.images && route.params.images.length){
         // console.log(route);
         let {images} = route.params;
-        // console.log(images);
         setImages(images)
       }
     }, [route.params])
@@ -92,51 +231,13 @@ export default function AddListingScreen({navigation, route}) {
     setModelData(arr)
   }
 
-  const loadMake = () => {
-    // console.log(CAR_DATA_API);
-
-    fetch(CAR_DATA_API.url +  '/classes/Car_Model_List', {
-      method: 'POST',
-      headers: {
-        'X-Parse-Application-Id': 'qgxAeRBd4700KqnpinqniHftxVVq807Bv9W6nBIB',
-        'X-Parse-REST-API-Key': 'Q3KSht6u6UPmKkUOCyydQzCaOIeZCVfM3JfzBCe3',
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      },
-      body: qs({
-        year: year
-      })
-    }).then((res)=> {
-      console.log(res);
-      
-    }).catch((err)=> {
-      console.log(err);
-      
-    })
-  }
-
-  const loadModel = async (carMake) => {
-    setLoading(true)
-    let url = `https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${carMake.toLowerCase()}?format=json`
-    console.log(make);
-    
-    await fetch(url).then((res)=> res.json())
-    .then((res)=>{
-      console.log(res);
-      setLoading(false)
-      generateModelData(res.Results)
-    }).catch((err)=> {
-      console.log(err);
-      setLoading(false)
-    })
-  }
   const selectYear = (y) => {
     setYear(y)
-    // loadMake()
   }
 
   const selectMake = (opt) => {
     setMake(opt.label)
-    loadModel(opt.label)
+    // loadModel(opt.label)
   }
 
   const selectModel = (opt) => {
@@ -147,7 +248,7 @@ export default function AddListingScreen({navigation, route}) {
     navigation.setOptions({
       headerShown: true,
       headerRight: () => 
-      <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
+      <TouchableOpacity style={[styles.submitButton, ]} onPress={onSubmit} disabled={loading}>
         <Text style={{color: 'black', fontWeight: 'bold' }}>DONE</Text>
       </TouchableOpacity>
     })
@@ -160,64 +261,101 @@ export default function AddListingScreen({navigation, route}) {
     // }
   }, [loading, images, choosingImages, year, make, model]);
 
-  const handleImages = (images) => {
-    console.log(images);
-    
-  };
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}
+      contentContainerStyle={styles.container}>
       <Spinner
         visible={loading}
       />
+      {loading && 
+        <ProgressBar 
+          progress={currentProgress} 
+          width={SCREEN_WIDTH}
+          borderRadius={0}
+          height={3}
+          useNativeDriver={true}
+          color={'black'}
+          unfilledColor={'lightgray'}
+          borderWidth={0}
+          style={{ position: 'absolute'}}
+        />
+      }
+      
       <Text style={styles.title}>Add New Listing</Text>
       <View style={styles.formContainer}>
+        <TextInput
+          label="Price"
+          value={price.toString()}
+          mode="outlined"
+          placeholder="Enter a number"
+          onChangeText={text => setPrice(text)}
+          theme={{ colors: { primary: '#808080',}}}
+        />
         <ModalSelector
           data={YEAR_DATA}
           initValue="Select Year"
           scrollViewAccessibilityLabel={'Scrollable options'}
           onChange={(option)=>{ selectYear(option.key) }}
+          disabled={price == ''}
         >
           <TextInput
+            disabled={price == ''}
             label="Year"
             value={year.toString()}
             editable={false}
             mode="outlined"
             placeholder="Select Year"
+            theme={{ colors: { primary: '#808080',}}}
           />
         </ModalSelector>
         
         <ModalSelector
           data={MAKE_DATA}
+          disabled={price == '' || year == ''}
           initValue="Select Make"
           scrollViewAccessibilityLabel={'Scrollable options'}
           onChange={(option)=>{ selectMake(option) }}
         >
           <TextInput
             label="Make"
+            disabled={price == '' || year == ''}
             value={make.toString()}
             editable={false}
             mode="outlined"
             placeholder="Make"
+            theme={{ colors: { primary: '#808080',}}}
           />
         </ModalSelector>
 
+        <TextInput
+          label="Model"
+          disabled={price == '' || year == '' || make =='' }
+          value={model}
+          mode="outlined"
+          placeholder="Select Model"
+          onChangeText={text => setModel(text)}
+          theme={{ colors: { primary: '#808080',}}}
+        />
 
+        <TextInput
+          label="Short Description"
+          value={description}
+          disabled={price == '' || year == '' || make =='' }
+          mode="outlined"
+          placeholder="Be as descriptive as possible"
+          theme={{ colors: { primary: '#808080',}}}
+          onChangeText={text => setDescription(text)}
+        />
+        {/*
         <ModalSelector
           data={MODEL_DATA}
           initValue="Select Make"
           scrollViewAccessibilityLabel={'Scrollable options'}
           onChange={(option)=>{ selectModel(option) }}
         >
-          <TextInput
-            label="Model"
-            value={model}
-            mode="outlined"
-            placeholder="Select Model"
-            onChangeText={text => setModel(text)}
-          />
+          
         </ModalSelector>
-        {/* <TextInput
+         <TextInput
           label="Make"
           value={make}
           mode="outlined"
@@ -229,10 +367,10 @@ export default function AddListingScreen({navigation, route}) {
 
         <TouchableOpacity style={styles.selectImagesBtnStyle}
           onPress={()=> navigation.navigate('BrowseImages')}>
-          <Text style={{color: 'white', fontWeight: 'bold' }}>{images.length != 0 ? "Change Selected Images" : "Select Images"}</Text>
+          <Text style={{color: 'black', fontWeight: 'bold' }}>{images.length != 0 ? "Change Selected Images" : "Select Images"}</Text>
         </TouchableOpacity>
 
-        { images.length != 0 &&
+        { images.length != 0 ?
           <View style={{ marginTop: 10, }}>
             <Text style={{fontSize: 18, fontWeight: 'bold'}}>Images Selected</Text>
 
@@ -241,8 +379,20 @@ export default function AddListingScreen({navigation, route}) {
                 return (
                   <ImageBackground 
                     key={index}
-                    style={styles.imgContainer} 
+                    style={[styles.imgContainer, ]} 
                     source={{uri: img.uri}}
+                  />
+                )
+              })}
+            </View>
+          </View> :
+          <View style={{ marginTop: 10, }}>
+            <View style={styles.imagesContainer}>
+              {[1,2,3,4,5,6].map((img, index)=> {
+                return (
+                  <View 
+                    key={index}
+                    style={[{backgroundColor: '#fafafa'},styles.imgContainer ]}
                   />
                 )
               })}
@@ -252,12 +402,11 @@ export default function AddListingScreen({navigation, route}) {
         
       </View>
      
-    </View>
+    </ScrollView>
   )
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: 'white'
   },
   submitButton: {
@@ -291,16 +440,17 @@ const styles = StyleSheet.create({
   imgContainer: { 
     height: (Dimensions.get('window').width / 3) - 30, 
     width: (Dimensions.get('window').width / 3) - 30,
+    borderWidth: 1,
     borderColor: 'lightgray',
-    borderWidth: 2,
     margin: 10
   },
   selectImagesBtnStyle: { 
     width: '100%', 
     padding: 20, 
     borderWidth: 1,
+    borderColor: 'black',
     borderRadius: 5, 
     marginTop: 10, 
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   }
 })

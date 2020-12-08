@@ -1,5 +1,6 @@
-import React , {useState} from 'react';
-import { Text, View, StyleSheet, RefreshControl } from 'react-native';
+import React , {useState, useEffect} from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { Alert, Text, View, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 
 import {
   Avatar,
@@ -8,6 +9,11 @@ import {
 } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { AuthContext } from '../hooks/authContext';
+
+import firebase from '../firebase/Fire';
+
+import Wrapper from './shared/Wrapper';
 const ListItem = ({item}) => {
   return(
     <View style={styles.listItemContainer}>
@@ -27,8 +33,12 @@ const ListItem = ({item}) => {
   );
 }
 
-export default function ProfileScreen() {
+export default function ProfileScreen({navigation}) {
   const [refreshing, setRefreshing] = useState(false)
+  const [user, setUser] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  const { signOut } = React.useContext(AuthContext);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -37,6 +47,60 @@ export default function ProfileScreen() {
     }, 1000)
   }
 
+  // Handle user state changes
+  function onAuthStateChanged(user) {
+    if (user) {
+      setUser(user);
+      // console.log(user);
+    }
+
+    if (loading) {
+      setLoading(false)
+    };
+  }
+  
+  const logout = () => {
+    setLoading(true);
+    signOut();
+    // firebase.auth().signOut();
+    // navigation.navigate('Root')
+  }
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: logout }
+      ],
+      { cancelable: false }
+    );
+
+    
+  }
+
+  useEffect(()=> {
+    navigation.setOptions({
+      headerRight: ()=> 
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="ios-log-out" color="black" size={28} style={{marginRight: 20}}/>
+        </TouchableOpacity>
+    })
+    const unsubscribe = navigation.addListener('focus', () => {
+      const subscriber = firebase.auth()
+      .onAuthStateChanged(onAuthStateChanged);
+      // console.log("listening ...")
+      // fetchData();
+    });
+
+    return unsubscribe
+  }, []);
+
   return (
     <ScrollView 
       refreshControl={
@@ -44,45 +108,48 @@ export default function ProfileScreen() {
       }
       style={{backgroundColor: 'white'}}
       contentContainerStyle={styles.container}>
-      <View style={styles.box1}>
-        <Avatar.Image size={128} source={{uri: 'https://picsum.photos/128/128'}} />
-        <Text style={styles.title}>Mark Ranges</Text>
-        <Text style={styles.subtitle}>CEO | App Developer</Text>
-        <Text style={styles.location}>Vancouver, BC</Text>
-      </View>
-      <View style={[styles.box1,{marginTop: 35}]}>
-        <View style={styles.bannerStyle}>
+      <Wrapper isLoading={loading}>
+        <View style={styles.box1}>
+          <Avatar.Image size={128} source={{uri: 'https://picsum.photos/128/128'}} />
+          <Text style={styles.title}>Mark Ranges</Text>
+          <Text style={styles.subtitle}>CEO | App Developer</Text>
+          <Text style={styles.location}>Vancouver, BC</Text>
+        </View>
+        <View style={[styles.box1,{marginTop: 35}]}>
+          <View style={styles.bannerStyle}>
+            
+          </View>
+          <View style={styles.statsContainer}>
+              <View>
+                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>15</Text>
+                <Text style={styles.subtitle}>Listings</Text>
+              </View>
+              <View>
+                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>25</Text>
+                <Text style={styles.subtitle}>Parts Sold</Text>
+              </View>
+              <View>
+                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>3</Text>
+                <Text style={styles.subtitle}>Ratings</Text>
+              </View>
+            </View>
+        </View>
+        <View style={{marginTop: 35, marginLeft: 20}}>
+          <Text style={[styles.title, {textAlign: 'left'}]}>
+            Recent Ratings
+          </Text>
+        
+        </View>
+        <View>
+          {[1,2,3,4,5].map((v, i)=> {
+            return <ListItem key={i}
+              item={{name: "Robert M.", comment: "Very funny guy lol"}}
+            />
+          })}
           
         </View>
-        <View style={styles.statsContainer}>
-            <View>
-              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>15</Text>
-              <Text style={styles.subtitle}>Listings</Text>
-            </View>
-            <View>
-              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>25</Text>
-              <Text style={styles.subtitle}>Sold Parts</Text>
-            </View>
-            <View>
-              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>3</Text>
-              <Text style={styles.subtitle}>Ratings</Text>
-            </View>
-          </View>
-      </View>
-      <View style={{marginTop: 35, marginLeft: 20}}>
-        <Text style={[styles.title, {textAlign: 'left'}]}>
-          Recent Ratings
-        </Text>
-       
-      </View>
-      <View>
-        {[1,2,3,4,5].map((v, i)=> {
-          return <ListItem key={i}
-            item={{name: "Robert M.", comment: "Very funny guy lol"}}
-          />
-        })}
-        
-      </View>
+      </Wrapper>
+      
     </ScrollView>
   );
 }
@@ -145,7 +212,7 @@ const styles = StyleSheet.create({
   listItemContainer: {
     backgroundColor: 'white',
     borderRadius: 10,
-    borderColor: 'black',
+    borderColor: 'lightgray',
     borderWidth: 1,
 
     flexDirection: 'row',

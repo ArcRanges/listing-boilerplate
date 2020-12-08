@@ -4,157 +4,103 @@ import {
   View,
   Text, 
   StyleSheet,
-  Image,
   TouchableOpacity,
-  Linking,
-  Alert,
-  Platform
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {FlatListSlider} from 'react-native-flatlist-slider';
 import ActionButton from 'react-native-action-button';
 import call from 'react-native-phone-call';
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
-import Card from '../components/Card';
+import firebase from '../firebase/Fire';
+
+import Card, {CardPlaceholder} from '../components/Card';
+import CustomImage from '../components/CustomImage';
 
 import {
   Paragraph,
-  Avatar
 } from 'react-native-paper';
 
-import ListItem from '../components/ListItem';
+import ImageView from "react-native-image-viewing";
 
-const DATA = [
-    {
-      "id": 1,
-      "title": "Acura 2019 TLX",
-      "img_url": "https://static.cargurus.com/images/article/2017/05/10/15/27/2018_acura_tlx_preview_overview-pic-7309079428147800010-200x200.jpeg",
-      "location": {
-        "city": "Vancouver",
-        "province": "BC"
-      },
-      "parts": [
-        {
-          "name": "Rear View Mirror",
-          "price": 300,
-          "status": 'sold'
-        },
-        {
-          "name": "Subwoofer",
-          "price": 100,
-          "status": 'available'
-        },
-        {
-          "name": "Spoiler",
-          "price": 250,
-          "status": 'pending'
-        },
-      ]
-    },
-    {
-      "id": 2,
-      "title": "Acura 2019 TLX",
-      "img_url": "https://static.cargurus.com/images/article/2017/05/10/15/27/2018_acura_tlx_preview_overview-pic-7309079428147800010-200x200.jpeg",
-      "location": {
-        "city": "Vancouver",
-        "province": "BC"
-      },
-      "parts": [
-        {
-          "name": "Rear View Mirror",
-          "price": 300,
-          "status": 'sold'
-        },
-        {
-          "name": "Subwoofer",
-          "price": 100,
-          "status": 'available'
-        },
-        {
-          "name": "Spoiler",
-          "price": 250,
-          "status": 'pending'
-        },
-      ]},
-      {
-        "id": 3,
-        "title": "Acura 2019 TLX",
-        "img_url": "https://static.cargurus.com/images/article/2017/05/10/15/27/2018_acura_tlx_preview_overview-pic-7309079428147800010-200x200.jpeg",
-        "location": {
-          "city": "Vancouver",
-          "province": "BC"
-        },
-        "parts": [
-          {
-            "name": "Rear View Mirror",
-            "price": 300,
-            "status": 'sold'
-          },
-          {
-            "name": "Subwoofer",
-            "price": 100,
-            "status": 'available'
-          },
-          {
-            "name": "Spoiler",
-            "price": 250,
-            "status": 'pending'
-          },
-        ]
-      },
-      {
-        "id": 4,
-        "title": "Acura 2019 TLX",
-        "img_url": "https://static.cargurus.com/images/article/2017/05/10/15/27/2018_acura_tlx_preview_overview-pic-7309079428147800010-200x200.jpeg",
-        "location": {
-          "city": "Vancouver",
-          "province": "BC"
-        },
-        "parts": [
-          {
-            "name": "Rear View Mirror",
-            "price": 300,
-            "status": 'sold'
-          },
-          {
-            "name": "Subwoofer",
-            "price": 100,
-            "status": 'available'
-          },
-          {
-            "name": "Spoiler",
-            "price": 250,
-            "status": 'pending'
-          },
-        ]
-      }
-  ]
-const images = [
-  {
-    image:'https://upload.wikimedia.org/wikipedia/commons/a/a8/2nd_Acura_CL.jpg',
-    desc: 'Silent Waters in the mountains in midst of Himilayas',
-  },
-  {
-    image:'https://upload.wikimedia.org/wikipedia/commons/b/b4/1998-1999_Acura_CL_--_04-11-2012_2.JPG',
-    desc:
-      'Red fort in India New Delhi is a magnificient masterpeiece of humans',
-  },
-  {
-    image:'https://media.ed.edmunds-media.com/acura/cl/2003/oem/2003_acura_cl_coupe_32_fq_oem_2_500.jpg',
-    desc:
-      'Red fort in India New Delhi is a magnificient masterpeiece of humans',
-  },
- ]
-export default function ListingScreen({navigation}) {
+export const convertImages = (imgs) => {
+  let arr = [];
+  imgs.map((img, i)=> {
+    arr.push({
+      image: img,
+      desc: 'Silent Waters in the mountains in midst of Himilayas'
+    })
+  });
+  // console.log(arr); 
+  return arr
+}
+
+export const convertToZoomImages = (imgs) => {
+  let arr = [];
+  imgs.map((img, i)=> {
+    arr.push({
+      uri: img,
+      index: i
+    })
+  });
+  // console.log(arr); 
+  return arr
+}
+export default function ListingScreen({navigation, route}) {
+  const listingData = route.params.data;
+  const [user, setUser] = useState({})
   const [loading, setLoading] = useState(false);
   const [isFavourite, setFavourite] = useState(false)
-  const [data, setData] = useState(DATA);
+  const [data, setData] = useState(listingData);
+  const [images, setImages] = useState([])
+  const [zoomImages, setZoomImages] = useState([])
+  const [isVisible, setModalVisible] = useState(false)
+
+  function onAuthStateChanged(user) {
+    if (user) {
+      // console.log(listingData);
+      setLoading(true)
+      firebase
+        .database()
+        .ref('users/' + user.uid)
+        .once('value')
+        .then((snapshot)=> {
+          // console.log();
+          let userData = snapshot.val()
+          if (userData.favourites != undefined) {
+            let isFavourited = userData.favourites[listingData._id] || false;
+            setFavourite(isFavourited)
+          }
+          setLoading(false);
+
+          setUser(user);
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
+    }
+
+    if (loading) {
+      setLoading(false)
+    };
+  }
+
+  const updateUserFavourites = (isFavourited) => {
+    if (user) {
+      firebase.database().ref('users/' + user.uid).once('value').then((snapshot => {
+        let favourites = {}
+        favourites[listingData._id] = isFavourited
+        firebase.database().ref('users/' + user.uid + '/favourites').update(favourites)
+      }));
+    }
+  }
 
   const addToFavourites = () => {
     
     if (isFavourite) {
       setFavourite(false);
+      updateUserFavourites(false)
       showMessage({
         message: "Oh no!",
         description: "This listing has been removed from your favourites.",
@@ -162,27 +108,43 @@ export default function ListingScreen({navigation}) {
       });
     } else {
       setFavourite(true);
+      updateUserFavourites(true)
       showMessage({
         message: "Success!",
         description: "This listing has been added to your favourites.",
         type: "success",
       });
     }
-   
   }
 
   const visitUser = (id) => {
     navigation.navigate("Profile", {id})
   }
-  
+
   useEffect(() => {
+    if (listingData.images) {
+      const images = convertImages(listingData.images)
+      const zoomImages = convertToZoomImages(listingData.images)
+      setImages(images);
+      setZoomImages(zoomImages)
+    }
+   
+    
     navigation.setOptions({
       headerRight: ()=> 
         <TouchableOpacity onPress={()=> visitUser(1)}>
           <Icon name="ios-contact" style={{ color: 'black', fontSize: 28, marginRight: 15}} />
         </TouchableOpacity>
-    })
-  }, [isFavourite])
+    });
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      const subscriber = firebase.auth()
+      .onAuthStateChanged(onAuthStateChanged);
+      
+    });
+
+    return unsubscribe
+  }, [isFavourite, user, ])
 
   const openCallWindow = () => {
     let phone = '6041112231';
@@ -193,8 +155,34 @@ export default function ListingScreen({navigation}) {
     call(args).catch(console.error)
   }
 
+  const onRefresh = () => {
+    // console.log('refreshing...');
+    // fetchData();
+    setLoading(true);
+    setTimeout(()=> {
+      setLoading(false)
+    },1500)
+  }
+  // if (images.length === 0) {
+  //   return <Text>Loading ...</Text>
+  // }
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+      </View>
+    )
+  }
   return (
     <View style={{flex: 1}}>
+      <ImageView
+        images={zoomImages}
+        imageIndex={0}
+        visible={isVisible}
+        onRequestClose={() => setModalVisible(false)}
+      />
       <ActionButton 
         style={{zIndex: 2}} 
         onPress={openCallWindow}
@@ -202,17 +190,28 @@ export default function ListingScreen({navigation}) {
         buttonColor="#147efb"
       >
       </ActionButton>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl 
+            refreshing={loading}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+        {images && images.length > 0 &&
+          <FlatListSlider
+            autoScroll={false}
+            timer={10000}
+            data={images}
+            width={275}
+            onPress={() => setModalVisible(isVisible => !isVisible)}
+            contentContainerStyle={{paddingHorizontal: 16}}
+            component={<CustomImage/>}
+            indicatorActiveWidth={40}
+          />
+        }
         
-        <FlatListSlider
-          autoScroll={false}
-          timer={10000}
-          data={images}
-          contentContainerStyle={{ borderRadius: 25}}
-          indicatorContainerStyle={{ bottom: 10, right: 10, position: 'absolute'}}
-          indicatorActiveColor="white"
-          indicatorInActiveColor="lightgray"
-        />
+       
         <View style={styles.descriptionContainerStyle}>
           <View style={styles.listingInfoBox}>
             <View style={styles.pricingBox}>
@@ -239,7 +238,7 @@ export default function ListingScreen({navigation}) {
          
 
           <Text style={styles.listTitle}>
-            Acura CL 2010
+            {data.title}
           </Text>
           <Paragraph>
             Posted 2 days ago
@@ -248,23 +247,20 @@ export default function ListingScreen({navigation}) {
           <Text style={styles.listTitle}>
             Short Description
           </Text>
-
           <Paragraph>
-            Mileage: 125km
-            Gas Efficiency: 2L/100km
-            Year Model: 2020, Acura
-            Buy whole car for $2050
+            {data.description}
           </Paragraph>
+          
           <Text style={styles.listTitle}>
             Parts Available
           </Text>
           
           {
-            DATA[0].parts.map((d, i)=> {
-              return (
-                <ListItem item={d} key={i} hideAdd={true}/>
-              )
-            })
+            // DATA[0].parts.map((d, i)=> {
+            //   return (
+            //     <ListItem item={d} key={i} hideAdd={true}/>
+            //   )
+            // })
           }
 
           <TouchableOpacity onPress={()=> navigation.navigate('Items', {})}
@@ -280,11 +276,13 @@ export default function ListingScreen({navigation}) {
         </View>
         
         <View style={styles.listingContainer}>
-          {data.map((data, index)=> {
-            return (
-              <Card key={index} data={data} navigation={navigation}/>
-            )
-          })}
+          {
+          // data.map((data, index)=> {
+          //   return (
+          //     <Card key={index} data={data} navigation={navigation}/>
+          //   )
+          // })
+          }
         </View>
         
       </ScrollView>
@@ -295,6 +293,7 @@ export default function ListingScreen({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#fff',
     paddingBottom: 40,
   },
@@ -331,6 +330,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     margin: 15
   },
+  image: {
+    height: 230,
+    resizeMode: 'stretch',
+  },
   imageStyle: {
     height: 250,
     borderRadius: 15,
@@ -349,7 +352,7 @@ const styles = StyleSheet.create({
     padding: 0, 
     borderRadius: 15,
     backgroundColor: '#fff',
-    height: 225,
+    height: 250,
 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },

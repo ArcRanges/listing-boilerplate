@@ -84,7 +84,8 @@ export default function ItemsScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    padding: 10
   },
   
 });

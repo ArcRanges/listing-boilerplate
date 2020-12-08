@@ -13,6 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../components/Card';
 
+import firebase from '../firebase/Fire';
+
 const DATA = [
   {
     "id": 1,
@@ -122,21 +124,81 @@ const DATA = [
 
 export default function MyListingsScreen({navigation}) {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(DATA);
+  const [data, setData] = useState([]);
+  const [user, setUser] = useState({});
 
-  const onRefresh = () => {
-    console.log('refreshing...');
-    
+  function onAuthStateChanged(user) {
+    if (user) {
+      // console.log("fetching data for ", user.uid);
+      
+      // firebase
+      //   .database()
+      //   .ref('users/' + user.uid)
+      //   .once('value')
+      //   .then((snapshot)=> {
+      //     let listings = snapshot.val().listings
+      //     if (listings != undefined) {
+      //       fetchData(listings);
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.warn(err)
+      //   })
+      fetchData(user)
+      setUser(user);
+    }
+
+    if (loading) {
+      setLoading(false)
+    };
   }
 
+  const fetchData =  async (user) => {
+    console.log("fetching for new data ...");
+    
+    setLoading(true)
+    setTimeout(()=> {
+      firebase.database()
+      .ref('/listings/')
+      .orderByChild('_createdBy')
+      .equalTo(user.uid)
+      .once('value')
+      .then((snapshot)=> {
+        let newData = [];
+        snapshot.forEach((item) => {
+          // console.log(item.val());
+          const { year, make, model, images, description } = item.val();
+          let title = year + " " + make + " " + model;
+          newData.push({title, images, description, _id: item.key})
+        })
+        setLoading(false)
+        setData(newData)
+      })
+    }, 999)
+    
+  }
+  
   useEffect(() => {
     navigation.setOptions({
       headerRight: ()=> 
-        <TouchableOpacity onPress={()=> navigation.navigate("AddListing")}>
+        <TouchableOpacity onPress={()=> navigation.navigate("AddListing", {user})}>
           <Ionicons name="ios-add" color="black" size={28} style={{marginRight: 20}}/>
         </TouchableOpacity>
     })
-  }, [])
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      const subscriber = firebase.auth()
+      .onAuthStateChanged(onAuthStateChanged);
+    });
+
+    return unsubscribe
+  }, [user])
+
+  const onRefresh = () => {
+    console.log('refreshing...');
+    // fetchData();
+    onAuthStateChanged(user)
+  }
   
   return (
     <ScrollView

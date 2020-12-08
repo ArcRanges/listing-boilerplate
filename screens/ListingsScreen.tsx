@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { 
   StyleSheet,
   ScrollView,
@@ -9,7 +9,9 @@ import {
   Image
 } from 'react-native';
 
-import Card from '../components/Card';
+import Card, {CardPlaceholder} from '../components/Card';
+
+import firebase from '../firebase/Fire';
 
 const DATA = [
   {
@@ -118,28 +120,94 @@ const DATA = [
   }
 ]
 
-export default function ListingsScreen({navigation}) {
+export default function ListingsScreen({navigation, route}) {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(DATA);
+  const [data, setData] = useState([]);
+  const brandData = route.params.data;
+
+  const fetchData =  async() => {
+    console.log("fetching for new data ...");
+    console.log("brandName", brandData.name);
+    
+    firebase.database()
+      .ref('/listings/')
+      .orderByChild('make')
+      .equalTo(brandData.name)
+      .once('value')
+      .then((snapshot)=> {
+        let newData = [];
+        snapshot.forEach((item) => {
+          let key = item.key;
+          const { year, make, model, images, description } = item.val();
+          let value = item.val();
+          let title = year + " " + make + " " + model;
+          newData.push({title, images, description, _id: key})
+        })
+        
+        setData(newData)
+      })
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const onRefresh = () => {
     console.log('refreshing...');
-    
+    fetchData();
   }
-
+  if (loading) {
+    return (
+      <View style={[styles.listingContainer, {backgroundColor: '#fff'}]}>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+      </View>
+    )
+  }
   return (
     <ScrollView
     style={styles.container}
     refreshControl={
       <RefreshControl refreshing={loading} onRefresh={onRefresh} />
     }>
-      <View style={styles.listingContainer}>
+      { !loading ? 
+        <View style={styles.listingContainer}>
         {data.map((data, index)=> {
           return (
-            <Card key={index} data={data} navigation={navigation}/>
+            <Card key={index} 
+              data={data} 
+              navigation={navigation} 
+              isAllowedEditing={false}
+            />
           )
         })}
+      </View> :
+      <View style={styles.listingContainer}>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
       </View>
+    }
+      
     </ScrollView>
   )
 }
@@ -163,7 +231,7 @@ const styles = StyleSheet.create({
     padding: 0, 
     borderRadius: 15,
     backgroundColor: '#fff',
-    height: 225
+    height: 250
   },
   shadow: {
     shadowColor: '#000',

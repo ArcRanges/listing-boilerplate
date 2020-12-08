@@ -289,7 +289,7 @@ function ProfileTabNavigator() {
         options={{
           ...headerConfig,
           headerTitle: '',
-          headerRight: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginRight: 20}}/>
+          headerLeft: ()=> <Ionicons name="ios-settings" color="black" size={28} style={{marginLeft: 20}}/>,
         }}
       />
     </ProfileStack.Navigator>
