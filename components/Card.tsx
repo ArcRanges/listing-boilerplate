@@ -23,7 +23,7 @@ export const CardPlaceholder = () => {
   )
 
 }
-export default function Card({navigation, data, isAllowedEditing}) {
+export default function Card({navigation, data, isAllowedEditing, item, itemKey}) {
   return (
     <View style={styles.listingBox}>
       <Image source={{ uri: data.images && data.images[0]}} 
@@ -39,7 +39,7 @@ export default function Card({navigation, data, isAllowedEditing}) {
         
         {isAllowedEditing && 
           <TouchableOpacity style={styles.buttonStyle}
-            onPress={()=> navigation.navigate('EditListing', {data})}
+            onPress={()=> navigation.navigate('EditListing', {data, item, key: itemKey})}
           >
             <Text style={{ color: 'black', }}>Edit Listing</Text>
             <Ionicons name="md-create" color="black" size={24}/>

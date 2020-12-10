@@ -14,6 +14,7 @@ import FavouritesScreen from '../screens/FavouritesScreen';
 
 import MyListingsScreen from '../screens/MyListingsScreen';
 import AddListingScreen from '../screens/AddListingScreen';
+import EditListingScreen from '../screens/EditListingScreen';
 import BrowseImageScreen from '../screens/BrowseImageScreen';
 
 import MessagesScreen from '../screens/MessagesScreen';
@@ -253,9 +254,17 @@ function MyListingsTabNavigator() {
           headerTitle: ''
         }}
       />
-       <MyListingsStack.Screen
+      <MyListingsStack.Screen
         name="AddListing"
         component={AddListingScreen}
+        options={{
+          ...headerConfig,
+          headerTitle: '',
+        }}
+      />
+      <MyListingsStack.Screen
+        name="EditListing"
+        component={EditListingScreen}
         options={{
           ...headerConfig,
           headerTitle: '',

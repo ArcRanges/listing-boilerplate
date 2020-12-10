@@ -14,6 +14,55 @@ import { AuthContext } from '../hooks/authContext';
 import firebase from '../firebase/Fire';
 
 import Wrapper from './shared/Wrapper';
+
+import { CardPlaceholder } from '../components/Card';
+
+import {
+  Placeholder,
+  PlaceholderLine,
+  Shine,
+} from "rn-placeholder";
+
+const LoadingProfile = () => {
+  return (
+    <Placeholder
+      Animation={Shine}>
+
+      <View style={styles.box1}>
+        <PlaceholderLine style={{ width: 128, height: 128, borderRadius: 64}}/>
+        <PlaceholderLine width={25} style={{ height: 20}}/>
+        <PlaceholderLine width={25} style={{ height: 20}}/>
+        <PlaceholderLine width={25} style={{ height: 20}}/>
+      </View>
+      <View style={[styles.box1,{marginTop: 35}]}>
+        <PlaceholderLine width={100} style={[styles.bannerStyle, {position: 'relative'}]}/>
+        <View style={styles.statsContainer}>
+           
+        </View>
+      </View>
+      <View style={{marginLeft: 20}}>
+        <PlaceholderLine width={25} style={{ height: 20}}/>
+      </View>
+      <View style={styles.placeholderCardsStyle}>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+        <View style={[styles.listingBox, {borderWidth: 1, borderColor: 'lightgray'}]}>
+          <CardPlaceholder/>
+        </View>
+      </View>
+     
+    </Placeholder>
+  )
+
+}
+
 const ListItem = ({item}) => {
   return(
     <View style={styles.listItemContainer}>
@@ -36,34 +85,44 @@ const ListItem = ({item}) => {
 export default function ProfileScreen({navigation}) {
   const [refreshing, setRefreshing] = useState(false)
   const [user, setUser] = useState({})
+  const [userData, setUserData] = useState({})
   const [loading, setLoading] = useState(false)
 
   const { signOut } = React.useContext(AuthContext);
 
   const onRefresh = () => {
-    setRefreshing(true);
+    setLoading(true);
+    fetchUserData(user)
     setTimeout(()=> {
-      setRefreshing(false);
-    }, 1000)
+      setLoading(false);
+    }, 2000)
+  }
+
+  const fetchUserData = async (user) => {
+    await firebase
+      .database()
+      .ref('users/' + user.uid)
+      .once('value')
+      .then((snapshot)=> {
+        let data = snapshot.val();
+        setUserData(data)
+      });
   }
 
   // Handle user state changes
   function onAuthStateChanged(user) {
+    setLoading(true)
     if (user) {
+      fetchUserData(user);
       setUser(user);
-      // console.log(user);
+      setLoading(false)
     }
 
-    if (loading) {
-      setLoading(false)
-    };
   }
   
   const logout = () => {
     setLoading(true);
     signOut();
-    // firebase.auth().signOut();
-    // navigation.navigate('Root')
   }
 
   const handleLogout = () => {
@@ -99,7 +158,16 @@ export default function ProfileScreen({navigation}) {
     });
 
     return unsubscribe
-  }, []);
+  }, [loading, user, userData]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LoadingProfile/>
+      </View>
+      
+    )
+  }
 
   return (
     <ScrollView 
@@ -108,47 +176,47 @@ export default function ProfileScreen({navigation}) {
       }
       style={{backgroundColor: 'white'}}
       contentContainerStyle={styles.container}>
-      <Wrapper isLoading={loading}>
-        <View style={styles.box1}>
-          <Avatar.Image size={128} source={{uri: 'https://picsum.photos/128/128'}} />
-          <Text style={styles.title}>Mark Ranges</Text>
-          <Text style={styles.subtitle}>CEO | App Developer</Text>
-          <Text style={styles.location}>Vancouver, BC</Text>
-        </View>
-        <View style={[styles.box1,{marginTop: 35}]}>
-          <View style={styles.bannerStyle}>
-            
-          </View>
-          <View style={styles.statsContainer}>
-              <View>
-                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>15</Text>
-                <Text style={styles.subtitle}>Listings</Text>
-              </View>
-              <View>
-                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>25</Text>
-                <Text style={styles.subtitle}>Parts Sold</Text>
-              </View>
-              <View>
-                <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>3</Text>
-                <Text style={styles.subtitle}>Ratings</Text>
-              </View>
-            </View>
-        </View>
-        <View style={{marginTop: 35, marginLeft: 20}}>
-          <Text style={[styles.title, {textAlign: 'left'}]}>
-            Recent Ratings
-          </Text>
-        
-        </View>
-        <View>
-          {[1,2,3,4,5].map((v, i)=> {
-            return <ListItem key={i}
-              item={{name: "Robert M.", comment: "Very funny guy lol"}}
-            />
-          })}
+
+      <View style={styles.box1}>
+        <Avatar.Image size={128} source={{uri: 'https://picsum.photos/128/128'}} />
+        <Text style={styles.title}>Mark Ranges</Text>
+        <Text style={styles.subtitle}>CEO | App Developer</Text>
+        <Text style={styles.location}>Vancouver, BC</Text>
+      </View>
+      <View style={[styles.box1,{marginTop: 35}]}>
+        <View style={styles.bannerStyle}>
           
         </View>
-      </Wrapper>
+        <View style={styles.statsContainer}>
+            <View>
+              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>{userData && Object.entries(userData.listings).length || 0}</Text>
+              <Text style={styles.subtitle}>Listings</Text>
+            </View>
+            {/* <View>
+              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>25</Text>
+              <Text style={styles.subtitle}>Parts Sold</Text>
+            </View>
+            <View>
+              <Text style={[styles.title, {marginTop: 0, color: 'tomato'}]}>3</Text>
+              <Text style={styles.subtitle}>Ratings</Text>
+            </View> */}
+          </View>
+      </View>
+      <View style={{marginTop: 35, marginLeft: 20}}>
+        <Text style={[styles.title, {textAlign: 'left'}]}>
+          Recent Ratings
+        </Text>
+      
+      </View>
+      <View>
+        {[1,2,3,4,5].map((v, i)=> {
+          return <ListItem key={i}
+            item={{name: "Robert M.", comment: "Very funny guy lol"}}
+          />
+        })}
+        
+      </View>
+
       
     </ScrollView>
   );
@@ -225,5 +293,25 @@ const styles = StyleSheet.create({
   comment: {
     fontWeight: 'normal',
     color: 'darkgray'
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+  },
+  placeholderCardsStyle: {
+    marginTop: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    flexDirection: 'row'
+  },
+  listingBox: { 
+    width: '45%', 
+    margin: 5, 
+    padding: 0, 
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    height: 250
   },
 });

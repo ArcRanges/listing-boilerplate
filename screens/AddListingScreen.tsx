@@ -121,10 +121,10 @@ export default function AddListingScreen({navigation, route}) {
   }
 
   const allFieldsAreValid = () => {
-    console.log( year === '' || 
-    make === '' ||
-    model === '' ||
-    description === '' );
+    // console.log( year === '' || 
+    // make === '' ||
+    // model === '' ||
+    // description === '' );
     
     return parseInt(price) === 0 ||
       year === '' || 
@@ -157,7 +157,8 @@ export default function AddListingScreen({navigation, route}) {
       model,
       description,
       _dateCreated,
-      _createdBy: user.uid
+      _createdBy: user.uid,
+      status: 'active'
     }
 
     if (Object.entries(data).length !== 0) {
